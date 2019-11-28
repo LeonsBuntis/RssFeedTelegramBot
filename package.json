@@ -1,0 +1,26 @@
+{
+  "name": "rssfeedbot",
+  "version": "1.0.0",
+  "description": "Telegram bot for RSS feed reading.",
+  "main": "index.js",
+  "scripts": {
+    "start": "micro-bot",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeonsBuntis/RssFeedTelegramBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeonsBuntis/RssFeedTelegramBot/issues"
+  },
+  "homepage": "https://github.com/LeonsBuntis/RssFeedTelegramBot#readme",
+  "dependencies": {
+    "cheerio": ">=0.12.0",
+    "micro-bot": "^2.5.3",
+    "pg": "^8.2.1",
+    "rss-parser": "^3.7.3"
+  }
+}
