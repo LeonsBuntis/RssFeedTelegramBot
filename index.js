@@ -9,7 +9,7 @@ bot.help((ctx) => ctx.reply('Help message'))
 bot.hears('hi', ({ reply }) => reply('Hello'))
 bot.on('sticker', ({ reply }) => reply('👍'))
 
-bot.hears('feed', async ({ reply }) => await readFeed(reply))
+bot.hears('feed', async ({ reply }) => setInterval(async () => await readFeed(reply), 10000))
 
 const feeds = [
     "https://shoptalkshow.com/feed/podcast/",
