@@ -4,7 +4,7 @@
   "description": "Telegram bot for RSS feed reading.",
   "main": "index.js",
   "scripts": {
-    "start": "micro-bot -t TOKEN index.js",
+    "start": "micro-bot -t Token index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/LeonsBuntis/RssFeedTelegramBot#readme",
   "dependencies": {
-    "feed-js": "^2.0.0",
-    "micro-bot": "^2.5.3"
+    "micro-bot": "^2.5.3",
+    "rss-parser": "^3.7.3"
   }
 }
