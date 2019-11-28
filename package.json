@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/LeonsBuntis/RssFeedTelegramBot#readme",
   "dependencies": {
+    "feed-js": "^2.0.0",
     "micro-bot": "^2.5.3"
   }
 }
