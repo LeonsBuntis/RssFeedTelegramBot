@@ -50,12 +50,10 @@ Scraper.prototype.scrape = function (callback) {
             response.on("data", function (data) {
                 var current = previous + data;
 
-                for (let img of current.matchAll(/<a.*?href="(.*?)".*?>/ig)) {
+                for (let img of current.matchAll(/<a[^>]*?href="([^<"]*?(?:\.jpg)?)"[^<]*?>/ig)) {
                     let url = img[1];
 
-                    if (/\.jpg$/ig.exec(url)) {
-                        ref.emit("image", url);
-                    }
+                    ref.emit("image", url);
                 }
 
                 previous = data;

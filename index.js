@@ -1,53 +1,37 @@
 const { Composer } = require('micro-bot');
-const FlatFeeder = require('./feeders/flatFeeder');
-const PodcastFeeder = require('./feeders/podcastFeeder');
-const { getChatIds, tryAddChatId, tryRemoveChatId } = require('./pg_repo.js');
+const Commands = require('./commands');
 
 const bot = new Composer();
 
-bot.start((ctx) => {
-    const chatId = ctx.update.message.chat.id;
+const commands = [
+    '/subscribe - Subscribes you to SS.com flats feed',
+    '/unsubscribe - Unsubscribes you from SS.com flats feed',
+    '/force_feed_flats - Force feeds you last hours flats'
+]
 
-    if (await tryAddChatId(chatId)) {
-        ctx.reply('Welcome, Subscribed! 💪');
+bot.start(({ reply }) => {
+    let msg = 'Welcome! 💪\nAvailable commands:';
+    for (let cmd of commands) {
+        msg += `\n${cmd}`; 
     }
-    else {
-        ctx.reply('Welcome, You are already subscribed! 🤘');
-    }
+    reply(msg);
 });
 
-bot.help((ctx) => ctx.reply('Help message'));
-
+bot.help((ctx) => ctx.reply('Help!'));
 bot.on('sticker', ({ reply }) => reply('👍'));
 
-bot.hears('podcasts', async ({ reply }) => { reply('not implemented 😛') /* await PodcastFeeder.feed(reply) */});
-bot.hears('f', async ({ replyWithHTML, replyWithMediaGroup }) => await FlatFeeder.feed(replyWithHTML, replyWithMediaGroup));
+bot.command('subscribe', (ctx) => Commands.subscribe(ctx.update.message.chat.id, ctx.reply));
+bot.command('unsubscribe', (ctx) => Commands.unsubscribe(ctx.update.message.chat.id, ctx.reply));
+bot.command('force_feed_flats', ({ replyWithHTML, replyWithMediaGroup }) => Commands.forceFeedFlats(replyWithHTML, replyWithMediaGroup));
 
-bot.hears('sub', async (ctx) => {
-    const chatId = ctx.update.message.chat.id;
+bot.command('podcasts', ({ reply }) => { reply('not implemented 😛') /* await PodcastFeeder.feed(reply) */ });
 
-    if (await tryAddChatId(chatId)) {
-        ctx.reply('Subscribed! 💪');
+bot.command('test', ({ reply }) => {
+    let msg = 'Welcome! 💪\nAvailable commands:';
+    for (let cmd in Commands) {
+        msg += `\n/${cmd}`; 
     }
-    else {
-        ctx.reply('You are already subscribed! 🤘');
-    }
-});
-
-bot.hears('unsub', async (ctx) => {
-    const chatId = ctx.update.message.chat.id;
-
-    if (await tryRemoveChatId(chatId)) {
-        ctx.reply('💩');
-    }
-    else {
-        ctx.reply('something went wrong u\'re still subbed 💩');
-    }
-});
-
-bot.hears('subscribers', async () => { 
-    const chatIds = await getChatIds();
-    console.log(chatIds);
+    reply(msg);
 });
 
 module.exports = bot;
