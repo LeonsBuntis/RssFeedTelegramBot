@@ -1,5 +1,5 @@
 const Parser = require('rss-parser');
-const Scraper = require('../scrapper.js');
+const Scraper = require('../scrapper_ss.js');
 
 const parser = new Parser();
 
@@ -10,8 +10,6 @@ const feeds = [
 const feed = async (reply, replyGallery) => {
     feeds.forEach(async feedUrl => {
         let feed = await parser.parseURL(feedUrl);
-        // console.log(feed);
-        // console.log(feed.title);
 
         let newItems = getNewItems(feed.items);
 
@@ -21,20 +19,13 @@ const feed = async (reply, replyGallery) => {
             let sc = new Scraper(item.link);
             let imgUrls = [];
 
-            sc.scrape((img) => {
-                if (img.extension !== '.jpg') {
-                    return;
-                }
-
-                let url = new URL(img.address);
-                // console.log(img);
+            sc.scrape((address) => {
+                let url = new URL(address);
 
                 if (url.origin === 'https://i.ss.com') {
                     imgUrls.push(url.href);
                 }
             });
-
-            // console.log(item);
 
             var content = parseSScontentSnippet(item.contentSnippet);
 
