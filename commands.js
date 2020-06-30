@@ -20,7 +20,7 @@ const unsubscribe = async (chatId, reply) => {
     }
 };
 
-const forceFeedFlats = async ({ replyWithHTML, replyWithMediaGroup }) => await FlatFeeder.feed(replyWithHTML, replyWithMediaGroup);
+const forceFeedFlats = FlatFeeder.feed;
 
 module.exports = {
     subscribe,

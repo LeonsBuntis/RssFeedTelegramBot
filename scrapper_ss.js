@@ -50,7 +50,7 @@ Scraper.prototype.scrape = function (callback) {
             response.on("data", function (data) {
                 var current = previous + data;
 
-                for (let img of current.matchAll(/<a[^>]*?href="([^<"]*?(?:\.jpg)?)"[^<]*?>/ig)) {
+                for (let img of current.matchAll(/<a[^>]*?href="([^"]*?\.jpg)"[^<]*?>/ig)) {
                     let url = img[1];
 
                     ref.emit("image", url);
