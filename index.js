@@ -20,7 +20,7 @@ bot.help((ctx) => ctx.reply('Help message'));
 
 bot.on('sticker', ({ reply }) => reply('👍'));
 
-bot.hears('podcasts', async ({ reply }) => setInterval(async () => await PodcastFeeder.feed(reply), 10000));
+bot.hears('podcasts', async ({ reply }) => { reply('not implemented 😛') /* await PodcastFeeder.feed(reply) */});
 bot.hears('f', async ({ replyWithHTML, replyWithMediaGroup }) => await FlatFeeder.feed(replyWithHTML, replyWithMediaGroup));
 
 bot.hears('sub', async (ctx) => {
@@ -45,13 +45,9 @@ bot.hears('unsub', async (ctx) => {
     }
 });
 
-bot.hears('subscribers', async ({ reply }) => { 
+bot.hears('subscribers', async () => { 
     const chatIds = await getChatIds();
     console.log(chatIds);
-
-    const subs = JSON.stringify(chatIds); 
-    console.log(subs);
-    reply(subs);
 });
 
 module.exports = bot;
