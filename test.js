@@ -1,25 +1,31 @@
 const { tryAddChatId, tryRemoveChatId, getChatIds } = require('./pg_repo.js');
-const Feeder = require('./feeders/flatFeeder.js');
-const format = require('./telegramFormatter.js');
+const PodcastFeeder = require('./feeders/podcastFeeder');
+const { generateGallery, generateMsg } = require('./telegramFormatter.js');
+const FlatFeeder = require('./feeders/flatFeeder');
+var feeder = new FlatFeeder();
 
-var feeder = new Feeder();
+(async () => {
+    let chatIds = await getChatIds();
 
-feeder.feed((arg) => {
-    let result = format(arg);
-    console.log(result);
-});
+    chatIds = chatIds.splice(0, 1);
 
-// tryRemoveChatId('123').then(_ => getChatIds().then(e => console.log(e)));
+    feeder.feed(({ content, imageUrls }) => {
 
+        for (const { ChatId } of chatIds) {
+            // console.log(`sending to -> ${ChatId}`);
 
-// const Scraper = require('./scrapper_ss.js');
+            if (imageUrls.length > 1) {
+                const gallery = generateGallery(content, imageUrls);
 
-// let sc = new Scraper('https://www.ss.com/msg/lv/real-estate/flats/riga/centre/eikjg.html');
+                // bot.sendMediaGroup(ChatId, gallery);
+                console.log(`${ChatId} gallery -> ${gallery[0].caption}`);
+            } else {
+                const msg = generateMsg(content);
 
-// sc.scrape((img) => {
-//     let url = new URL(img);
+                console.log(`${ChatId} -> ${msg}`);
 
-//     if (url.origin === 'https://i.ss.com') {
-//         console.log(url.href);
-//     }
-// });
+                // bot.sendMessage(ChatId, msg);
+            }
+        }
+    });
+})();

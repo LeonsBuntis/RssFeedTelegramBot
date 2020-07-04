@@ -9,14 +9,16 @@ const feeds = [
 
 class Feeder {
 
-    feed(callback) {
-        feeds.forEach(url => handleFeed(url, callback));
+    async feed(callback) {
+        for (const url of feeds) {
+            await handleFeed(url, callback);
+        }
     };
 }
 
 const handleFeed = async (feedUrl, callback) => {
     let feed = await parser.parseURL(feedUrl);
-    
+
     let newItems = getNewItems(feed.items);
 
     for (let i = 0; i < newItems.length; i++) {
