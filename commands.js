@@ -27,11 +27,11 @@ const forceFeedFlats = (reply, replyGallery) => {
         if (imageUrls.length > 1) {
             let gallery = generateGallery(content, imageUrls);
 
-            return replyGallery(gallery);
+            replyGallery(gallery);
         } else {
             let msg = generateMsg(content);
 
-            return reply(msg);
+            reply(msg);
         }
     });
 };
