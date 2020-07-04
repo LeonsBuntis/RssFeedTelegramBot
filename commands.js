@@ -1,6 +1,8 @@
 const { tryAddChatId, tryRemoveChatId } = require('./pg_repo.js');
-const FlatFeeder = require('./feeders/flatFeeder');
 const PodcastFeeder = require('./feeders/podcastFeeder');
+const { generateGallery, generateMsg } = require('./telegramFormatter.js');
+const FlatFeeder = require('./feeders/flatFeeder');
+var feeder = new FlatFeeder();
 
 const subscribe = async (chatId, reply) => {
     if (await tryAddChatId(chatId)) {
@@ -20,7 +22,19 @@ const unsubscribe = async (chatId, reply) => {
     }
 };
 
-const forceFeedFlats = FlatFeeder.feed;
+const forceFeedFlats = (reply, replyGallery) => {
+    feeder.feed(({ content, imageUrls }) => {
+        if (imageUrls.length > 1) {
+            let gallery = generateGallery(content, imageUrls);
+
+            return replyGallery(gallery);
+        } else {
+            let msg = generateMsg(content);
+
+            return reply(msg);
+        }
+    });
+};
 
 module.exports = {
     subscribe,

@@ -1,7 +1,5 @@
-var fs = require("fs");
 var http = require("http");
 var https = require("https");
-var path = require("path");
 var url = require("url");
 var events = require("events").EventEmitter;
 var util = require("util");

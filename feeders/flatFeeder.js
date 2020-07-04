@@ -7,63 +7,45 @@ const feeds = [
     'https://www.ss.com/lv/real-estate/flats/riga/centre/sell/rss/',
 ];
 
-const feed = async (reply, replyGallery) => {
-    feeds.forEach(async feedUrl => {
-        let feed = await parser.parseURL(feedUrl);
+class Feeder {
 
-        let newItems = getNewItems(feed.items);
+    feed(callback) {
+        feeds.forEach(url => handleFeed(url, callback));
+    };
+}
 
-        for (let i = 0; i < newItems.length; i++) {
-            const item = newItems[i];
+const handleFeed = async (feedUrl, callback) => {
+    let feed = await parser.parseURL(feedUrl);
+    
+    let newItems = getNewItems(feed.items);
 
-            let sc = new Scraper(item.link);
-            let imgUrls = [];
+    for (let i = 0; i < newItems.length; i++) {
+        const item = newItems[i];
 
-            sc.scrape((address) => {
-                let url = new URL(address);
+        let scrapper = new Scraper(item.link);
+        let imgUrls = [];
 
-                if (url.origin === 'https://i.ss.com') {
-                    imgUrls.push(url.href);
-                }
-            });
+        scrapper.scrape((address) => {
+            let url = new URL(address);
 
-            var content = parseSScontentSnippet(item.contentSnippet);
-
-            let msg = '<strong>';
-
-            for (var key in content) {
-                let value = content[key];
-                let v = `${key}: ${value} \n`;
-                // console.log(v);
-                msg += v;
+            if (url.origin === 'https://i.ss.com') {
+                imgUrls.push(url.href);
             }
+        });
 
-            msg += '</strong>' + '\n' + item.title + '\n' + item.link;
+        var content = parseSScontentSnippet(item.contentSnippet);
+        content.link = item.link;
+        content.title = item.title;
 
-            let msg2 = `${content.price} - ${content.type} ${content.street}\nrooms: ${content.rooms}, floor:${content.floor}\n${content.area} - ${content.pricePerSquareMeter}\n${item.link}`;
+        scrapper.on("end", () => {
+            let distinctImgUrls = [...new Set(imgUrls)];
 
-            sc.on("end", () => {
-                let u = [...new Set(imgUrls)];
-                let u2 = [];
-                u.forEach(url => {
-                    let inputMediaPhoto = {
-                        type: 'photo',
-                        media: url
-                    };
-                    u2.push(inputMediaPhoto);
-                });
-
-                if (u2.length > 1) {
-                    let slicedPictures = u2.slice(0, 9);
-                    slicedPictures[0].caption = msg2;
-
-                    replyGallery(slicedPictures);
-                } else {
-                    reply(msg);
-                }
+            callback({
+                content: content,
+                imageUrls: distinctImgUrls
             });
-        }
-    });
+        });
+    }
 }
 
 const getNewItems = (items) => {
@@ -80,17 +62,15 @@ const getNewItems = (items) => {
         if (itemDate < from) {
             return newItems;
         }
-        
+
         newItems.push(item);
     }
 
     return newItems;
-}
+};
 
 const parseSScontentSnippet = (content) => {
     var splitted = content.split(/Iela:(.*?)Ist.:(.*?)m2:(.*?)Stāvs:(.*?)Sērija:(.*?):(.*?)Cena:(.*?)Apskatīt sludinājumu$/);
-
-    // console.log(splitted);
 
     return {
         street: splitted[1],
@@ -103,4 +83,4 @@ const parseSScontentSnippet = (content) => {
     };
 };
 
-module.exports = { feed };
+module.exports = Feeder;
