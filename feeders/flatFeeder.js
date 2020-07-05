@@ -63,7 +63,7 @@ const handleFeed = async (feedUrl, callback) => {
 
 const getNewItems = (items) => {
     const from = new Date();
-    from.setHours(from.getHours() - 2);
+    from.setHours(from.getHours() - 1);
     from.setMinutes(0);
     from.setSeconds(0);
 
