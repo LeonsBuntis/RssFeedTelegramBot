@@ -27,5 +27,5 @@ var feeder = new FlatFeeder();
                 // bot.sendMessage(ChatId, msg);
             }
         }
-    });
+    }); 
 })();
