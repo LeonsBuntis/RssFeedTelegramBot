@@ -1,5 +1,6 @@
 const Parser = require('rss-parser');
 const Scraper = require('../scrapper_ss.js');
+const moment = require('moment');
 
 const parser = new Parser();
 
@@ -8,10 +9,49 @@ const feeds = [
 ];
 
 class Feeder {
+    constructor(from) {
+        from = from ? from : 1;
+
+        this.from = moment().subtract(from, 'hours');
+        this.from.set('minute', 0);
+        this.from.set('second', 0);
+    }
+
     async feed(callback) {
         for (const url of feeds) {
-            await handleFeed(url, callback);
+            await this.handleFeed(url, callback);
         }
+    };
+
+    async handleFeed(feedUrl, callback) {
+        let feed = await parser.parseURL(feedUrl);
+
+        let newItems = this.getNewItems(feed.items);
+
+        for (let i = 0; i < newItems.length; i++) {
+            const item = newItems[i];
+
+            let handler = new Handler(item, callback);
+            setTimeout(() => {
+                handler.handleFeed();
+            }, 1000 * i);
+        }
+    }
+
+    getNewItems(items) {
+        const newItems = [];
+
+        for (const item of items) {
+            const itemDate = new Date(item.isoDate);
+
+            if (itemDate < this.from) {
+                return newItems;
+            }
+
+            newItems.push(item);
+        }
+
+        return newItems;
     };
 }
 
@@ -33,7 +73,7 @@ class Handler {
             }
         });
 
-        this.content = parseSScontentSnippet(this.item.contentSnippet);
+        this.content = this.parseSScontentSnippet(this.item.contentSnippet);
         this.content.link = this.item.link;
         this.content.title = this.item.title;
 
@@ -46,54 +86,21 @@ class Handler {
             });
         });
     }
-}
 
-const handleFeed = async (feedUrl, callback) => {
-    let feed = await parser.parseURL(feedUrl);
+    parseSScontentSnippet(content) {
+        var splitted = content.split(/Iela:(.*?)Ist.:(.*?)m2:(.*?)Stāvs:(.*?)Sērija:(.*?):(.*?)Cena:(.*?)Apskatīt sludinājumu$/);
 
-    let newItems = getNewItems(feed.items);
-
-    for (let i = 0; i < newItems.length; i++) {
-        const item = newItems[i];
-
-        let handler = new Handler(item, callback);
-        handler.handleFeed();
-    }
-}
-
-const getNewItems = (items) => {
-    const from = new Date();
-    from.setHours(from.getHours() - 1);
-    from.setMinutes(0);
-    from.setSeconds(0);
-
-    const newItems = [];
-
-    for (const item of items) {
-        const itemDate = new Date(item.isoDate);
-
-        if (itemDate < from) {
-            return newItems;
-        }
-
-        newItems.push(item);
-    }
-
-    return newItems;
-};
-
-const parseSScontentSnippet = (content) => {
-    var splitted = content.split(/Iela:(.*?)Ist.:(.*?)m2:(.*?)Stāvs:(.*?)Sērija:(.*?):(.*?)Cena:(.*?)Apskatīt sludinājumu$/);
-
-    return {
-        street: splitted[1],
-        rooms: splitted[2],
-        area: splitted[3],
-        floor: splitted[4],
-        type: splitted[5],
-        pricePerSquareMeter: splitted[6],
-        price: splitted[7]
+        return {
+            street: splitted[1],
+            rooms: splitted[2],
+            area: splitted[3],
+            floor: splitted[4],
+            type: splitted[5],
+            pricePerSquareMeter: splitted[6],
+            price: splitted[7]
+        };
     };
-};
+
+}
 
 module.exports = Feeder;
