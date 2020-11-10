@@ -42,9 +42,13 @@ class Feeder {
         const newItems = [];
 
         for (const item of items) {
-            const itemDate = new Date(item.isoDate);
+            let mDate = moment(item.isoDate);
+            let isDst = moment().isDST();
+            if (!isDst) {
+                mDate = mDate.add(1, 'hours');
+            }
 
-            if (itemDate < this.from) {
+            if (this.from.isAfter(mDate)) {
                 return newItems;
             }
 
